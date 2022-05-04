@@ -25,6 +25,7 @@
        network: "awxnet"
        deploy: false
        state: present
+     ignore_errors: true
    - name: modify cpu vapp vm
      vcd_vapp_vm:
        target_vm_name: "windows20"
