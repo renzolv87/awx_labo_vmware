@@ -357,3 +357,5 @@
 22-05-05 11:58:45 | client:1098 - rehydrate_from_token | DEBUG :: API version in use: 34.0
 22-05-05 11:59:04 | client:1016 - set_credentials | DEBUG :: API version in use: 34.0
 22-05-05 11:59:04 | client:1098 - rehydrate_from_token | DEBUG :: API version in use: 34.0
+22-05-05 11:59:19 | client:1016 - set_credentials | DEBUG :: API version in use: 34.0
+22-05-05 11:59:19 | client:1098 - rehydrate_from_token | DEBUG :: API version in use: 34.0
