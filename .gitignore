@@ -1,2 +1,2 @@
-./playbooks/vcd_pysdk.log
-./playbooks/vcd_sdk.log
+playbooks/vcd_pysdk.log
+playbooks/vcd_sdk.log
