@@ -1,1 +1,0 @@
-# awx_labo_vmware
