@@ -1,0 +1,105 @@
+---
+- name: login 
+  hosts: localhost
+  environment:
+    env_user: rlujan 
+    env_password: rlujan 
+    env_host: https://vcloud.t-systems.es
+    env_org: UnixDept 
+    env_api_version: 34.0
+    env_verify_ssl_certs: false
+  tasks: 
+    - set_fact:
+        linux_ip: "192.168.17.{{ hosts | regex_search('[0-9]+') | int + 100 }}"
+      when: os_type is defined and os_type == "linux"
+    - set_fact:
+        windows_ip: "192.168.17.{{ hosts | regex_search('[0-9]+') | int + 200 }}"
+      when: os_type is defined and os_type == "windows"
+    - debug:
+        msg: "hosts: {{ hosts }}" 
+    - name: create linux vapp vm from catalog
+      vcd_vapp_vm:
+        target_vm_name: "{{ hosts }}"
+        target_vapp: "vApp_AWX"
+        source_vdc: "unix-alloc-vdc-01"
+        target_vdc: "unix-alloc-vdc-01"
+        source_catalog_name: "Unix"
+        source_template_name: "template_OL_8_5"
+        source_vm_name: "linux01"
+        ip_allocation_mode: "MANUAL"
+        power_on: false
+        all_eulas_accepted: true
+        storage_profile: "Entry SB01B2"
+        network: "awxnet"
+        deploy: false
+        state: "present"
+      ignore_errors: true
+      when: os_type is defined and os_type == "linux"
+    - name: create windows vapp vm from catalog
+      vcd_vapp_vm:
+        target_vm_name: "{{ hosts }}"
+        target_vapp: "vApp_AWX"
+        source_vdc: "unix-alloc-vdc-01"
+        target_vdc: "unix-alloc-vdc-01"
+        source_catalog_name: "Unix"
+        source_template_name: "template-w2019"
+        source_vm_name: "windows02"
+        ip_allocation_mode: "MANUAL"
+        power_on: false
+        all_eulas_accepted: true
+        storage_profile: "Entry SB01B2"
+        network: "awxnet"
+        deploy: false
+        state: present
+      ignore_errors: true
+      when: os_type is defined and os_type == "windows"
+    - name: modify cpu vapp vm
+      vcd_vapp_vm:
+        target_vm_name: "{{ hosts }}"
+        target_vapp: "vApp_AWX"
+        target_vdc: "unix-alloc-vdc-01"
+        virtual_cpus: 2
+        cores_per_socket: 2
+        state: "update"
+    - name: modify memory vapp vm
+      vcd_vapp_vm:
+        target_vm_name: "{{ hosts  }}"
+        target_vapp: "vApp_AWX"
+        target_vdc: "unix-alloc-vdc-01"
+        memory: 2048
+        state: "update"
+    - name: create vm nic linux with {{ linux_ip }}
+      vcd_vapp_vm_nic:
+        vm_name: "{{ hosts }}"
+        vapp: "vApp_AWX"
+        vdc: "unix-alloc-vdc-01"
+        nics:
+        - nic_id: 1
+          network: "awxnet"
+          ip_allocation_mode: "MANUAL"
+          ip_address: "{{ linux_ip }}"
+          is_connected: true
+          adapter_type: "VMXNET3"
+        state: present
+      when: os_type is defined and os_type == "linux"
+    - name: create vm nic windows with {{ windows_ip }}
+      vcd_vapp_vm_nic:
+        vm_name: "{{ hosts }}"
+        vapp: "vApp_AWX"
+        vdc: "unix-alloc-vdc-01"
+        nics:
+        - nic_id: 1
+          network: "awxnet"
+          ip_allocation_mode: "MANUAL"
+          ip_address: "{{ windows_ip }}"
+          is_connected: true
+          adapter_type: "VMXNET3"
+        state: present
+      when: os_type is defined and os_type == "windows"
+    - name: poweron server
+      vcd_vapp_vm:
+        target_vm_name: "{{ hosts }}"
+        target_vapp: "vApp_AWX"
+        target_vdc: "unix-alloc-vdc-01"
+        operation: "poweron"
+      tags: poweron

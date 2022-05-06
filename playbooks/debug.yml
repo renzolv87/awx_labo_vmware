@@ -1,0 +1,17 @@
+---
+- name: login 
+  hosts: localhost
+  environment:
+    env_user: rlujan 
+    env_password: rlujan 
+    env_host: https://vcloud.t-systems.es
+    env_org: UnixDept 
+    env_api_version: 34.0
+    env_verify_ssl_certs: false
+  tasks: 
+   - set_fact: 
+       ip: "192.168.17.{{ hosts | regex_search('[0-9]+') | int + 100 }}"
+        
+   - name: print var
+     debug:
+       msg: '{{ ip }}'  
